@@ -33,5 +33,9 @@ vox2STL.vox2stl(vox1, filename='leaf_architected')
 
 ## Simulation and Analysis
 To run a coarse-grained simulation of a generated structure:
-1) Use 
-Code for creating coarse-grained models of structures can be found in *img2lat.py*. *MD_analysis.ipynb* contains code for extracting modulus from simulation results. *leafgan_cnn.ipynb* and *leafgan_GA.ipynb* contain code for constructing and training a convolutional neural network for predicting modulus and a genetic algorithm for optimizing structures, respectively. 
+1) Run *img2lat.py* to create a coarse-grained lattice from the image of a structure (define the image and destination paths within the code).
+2) Use LAMMPS to run the compression simulation. Example LAMMPS file with our parameters can be found in *compression.crack*.
+3) Use *MD_analysis.ipynb* to extract stress-strain curves and moduli from simulation results.
+4) Train a convolutional neural network (CNN) on simulation results with *leafgan_cnn.ipynb*
+5) Run a genetic algorithm (GA) with the trained CNN as a surrogate model with *leafgan_GA.ipynb* to generate optimized structures. 
+

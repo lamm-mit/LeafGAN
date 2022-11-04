@@ -1,0 +1,115 @@
+# 2d LJ compression simulation
+
+#set OMP_NUM_THREADS=8
+dimension	3
+boundary	p p p
+
+atom_style	atomic
+units       metal
+
+read_data	./unit2.coor
+
+neighbor	    0.3 bin
+neigh_modify	delay 5
+
+mass		1 50.0
+
+
+# LJ potentials 
+
+pair_style	lj/cut 1.5 #LJ potential with cutoff of 1.5
+pair_coeff	* * .1 1.0 1.5
+
+#don't need groups for "fix deform"
+
+#MINIMIZE..  
+min_style cg
+minimize 1e-8 1e-8 1000 1000
+
+# EQUILIBRATION/initializing velocities
+reset_timestep	0
+timestep 0.001 #ps
+velocity all create 0.01 12345 mom yes rot no
+fix 1 all npt temp .01 .01 1 iso 0 0 1 drag 1 #npt to set pressure to 0; use room temp or near 0 for temp
+
+# Set thermo output #how log file is written
+thermo 1000
+thermo_style custom step lx ly lz press pxx pyy pzz pe temp
+
+#Output xyz filr
+dump xyz all xyz 10 equil.xyz 
+
+# Run for at least 10 picosecond (assuming 1 fs timestep)
+run 15000 #may need more; temperature (0.1) and pressure (0) should be near what we want in log file after equil
+
+unfix 1
+undump xyz
+  
+
+#Store cell length after equilibration
+variable tmp equal "lx"
+variable L0 equal ${tmp}
+
+######################################
+# DEFORMATION
+reset_timestep	0
+
+fix		1 all npt temp .01 .01 1 y 0 0 1 z 0 0 1 drag 1
+variable srate equal -1.0e-6
+fix		2 all deform 1 x erate ${srate} units box #remap x
+
+# Output strain and stress info to file
+# for units metal, pressure is in [bars] = 100 [kPa] = 1/10000 [GPa]
+# p2, p3, p4 are in GPa
+variable strain equal "(lx - v_L0)/v_L0" #can also define velocity instead (not recommended)
+variable p1 equal "v_strain"
+variable p2 equal "-pxx/10000"
+variable p3 equal "-pyy/10000"
+variable p4 equal "-pzz/10000"
+fix def1 all print 100 "${p1} ${p2} ${p3} ${p4}" file fix_deform_test_100.def1.txt screen no
+
+
+# Display thermo
+thermo 	1
+thermo_style	custom step v_strain temp v_p2 v_p3 v_p4 ke pe press
+
+
+######################################
+
+# Compute atomic stress
+compute          1 all stress/atom NULL
+variable sxx atom c_1[1]
+variable         syy atom c_1[2]
+variable         szz atom c_1[3]
+variable         sxy atom c_1[4]
+variable         sxz atom c_1[5]
+variable         syz atom c_1[6]
+variable mises atom "sqrt(((v_sxx-v_syy)^2 + (v_sxx - v_szz)^2 + (v_syy -v_szz)^2 + 6*(v_sxy^2 + v_sxz^2 + v_syz^2)) / 2)"
+
+#  Time average
+#fix ID group-ID ave/atom Nevery Nrepeat Nfreq value1 value2 ...
+fix sxx all ave/atom 10 20 1000 v_sxx
+#fix 1 all ave/atom 10 20 1000 c_my_stress[1]
+
+fix syy all ave/atom 10 20 1000 v_syy
+fix szz all ave/atom 10 20 1000 v_szz
+fix sxy all ave/atom 10 20 1000 v_sxy
+fix sxz all ave/atom 10 20 1000 v_sxz
+fix syz all ave/atom 10 20 1000 v_syz
+fix mises all ave/atom 10 20 1000 v_mises
+
+# Outputs
+#dump ave_sxx all custom 200000 dump.1 id x y z f_sxx f_syy f_szz f_sxy f_sxz f_syz f_mise
+dump ave_sxx all custom 10 ./dump_small_impact_fix_deform.stress id x y z v_sxx v_syy v_szz v_sxy v_sxz v_syz v_sxx v_mises
+
+
+#dump		2 all image 1000 ./image_small_impact_fix_deform.*.jpg type type &
+#		zoom 1.6 adiam 1.5
+#dump_modify	2 pad 4
+
+#dump		3 all movie 250 ./movie_small_impact_fix_deform.avi type type &
+#		zoom 1.6 adiam 1.5
+#dump_modify	3 pad 4
+
+
+run		15000

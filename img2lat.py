@@ -1,3 +1,10 @@
+##img2lat.py
+##Create coarse-grained simulation lattices from structure images
+
+##Sabrina Shen, Markus Buehler 2022
+
+##Shen, S.C., Buehler, M.J. Nature-inspired Architected materials using unsupervised deep learning. Accepted (2022).
+
 from math import *
 from random import random
 import img2lat_functions
@@ -7,6 +14,9 @@ import numpy as np
 import cv2
 from PIL import Image
 import os
+
+path='C:/Users/sabri/Desktop/LAMM/leaf_stylegan/GA/img/880/'
+dest='C:/Users/sabri/Desktop/LAMM/leaf_stylegan/GA/img/880/coord/'
 
 #Lattice param
 
@@ -25,9 +35,6 @@ r0_lattice_y=r0_lattice * sqrt(3. )
 ucellsize=4
 ux = [0, r0_lattice/2,r0_lattice, r0_lattice*3/2]
 uy = [0, r0_lattice*sqrt(3)/2.,0, r0_lattice*sqrt(3)/2.   ]
-
-path='C:/Users/sabri/Desktop/LAMM/leaf_stylegan/GA/img/880/'
-dest='C:/Users/sabri/Desktop/LAMM/leaf_stylegan/GA/img/880/coord/'
 
 i=0
 for im_path in os.listdir(path):

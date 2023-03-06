@@ -1,7 +1,5 @@
 # LeafGAN
-**Nature-inspired architected materials using unsupervised deep learningn 2 and 3 dimensions**
-
-Sabrina Shen, Markus Buehler
+**Nature-inspired architected materials using unsupervised deep learning**
 
 Reference: Shen, S.C., Buehler, M.J. Nature-inspired Architected materials using unsupervised deep learning. Communications Enginering, 2022, DOI: https://www.nature.com/articles/s44172-022-00037-0
 

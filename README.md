@@ -9,7 +9,7 @@ Abstract: *Nature-inspired material design is driven by superior properties foun
 
 ## Getting Started
 1) Code and instructions for training the StyleGAN architecture can be found [here](https://github.com/NVlabs/stylegan2-ada-pytorch). The version as of 11/04/2022 is also copied in *stylegan2-ada-pytorch-main*. Training images can be found in the *leaf* directory.
-2) Once trained, generate images based on random seeds with:
+2) Once trained, generate images based on random seeds with the code below (be sure to use the modified generate.py file in this repository):
 ``` 
 python generate.py --outdir=./MD/5000-6000/images/ --trunc=1.0 --seeds=5000-9999 --network=./leaf-network-snapshot.pkl
 ```
